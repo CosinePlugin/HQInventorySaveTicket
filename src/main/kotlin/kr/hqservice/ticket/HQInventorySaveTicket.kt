@@ -1,6 +1,5 @@
 package kr.hqservice.ticket
 
-import kr.hqservice.ticket.cache.ItemCache
 import kr.hqservice.ticket.command.AdminCommand
 import kr.hqservice.ticket.listener.InventoryListener
 import kr.hqservice.ticket.listener.InventorySaveListener
@@ -20,15 +19,10 @@ class HQInventorySaveTicket : JavaPlugin() {
         plugin = this
     }
 
-    lateinit var itemCache: ItemCache
-        private set
-
     lateinit var itemRepository: ItemRepository
         private set
 
     override fun onEnable() {
-        itemCache = ItemCache()
-
         itemRepository = ItemRepository(this)
         itemRepository.load()
 

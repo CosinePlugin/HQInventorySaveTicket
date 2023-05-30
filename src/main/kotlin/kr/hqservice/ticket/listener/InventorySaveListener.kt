@@ -1,11 +1,11 @@
 package kr.hqservice.ticket.listener
 
 import kr.hqservice.ticket.HQInventorySaveTicket
+import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
-import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 
@@ -14,54 +14,47 @@ class InventorySaveListener(
 ) : Listener {
 
     private val itemRepository = plugin.itemRepository
-    private val itemCache = plugin.itemCache
-
-    @EventHandler
-    fun onRespawn(event: PlayerRespawnEvent) {
-        val player = event.player
-        val uuid = player.uniqueId
-
-        if (!itemCache.contains(uuid)) return
-
-        val items = itemCache.get(uuid) ?: return
-        val playerInventory = player.inventory
-
-        items.forEach(playerInventory::addItem)
-        itemCache.remove(uuid)
-
-        /*val inventorySaveTicket = itemRepository.getInventorySaveTicket() ?: return
-        playerInventory.removeItem(inventorySaveTicket)*/
-    }
+    private val exceptedItems get() = itemRepository.getExceptedItems()
+    private val inventorySaveTicket get() = itemRepository.getInventorySaveTicket()
 
     @EventHandler
     fun onDeath(event: PlayerDeathEvent) {
         val player = event.entity as Player
+        val playerLocation = player.location
         val playerInventory = player.inventory
 
-        val inventorySaveTicket = itemRepository.getInventorySaveTicket() ?: return
-        if (!playerInventory.containsAtLeast(inventorySaveTicket, 1)) return
+        if (inventorySaveTicket == null) return
 
         val drops = event.drops
-
-        // playerInventory.removeItem(inventorySaveTicket)
-        val exceptedItems = itemRepository.getExceptedItems()
-        val filterDrops = drops.filterNotNull().filter { it in exceptedItems }
-        val saveFilter = drops.filterNotNull().filterNot { it in exceptedItems && !it.isSimilar(inventorySaveTicket) }
-
         val inventorySaveTickets = drops.filterNotNull().filter { it.isSimilar(inventorySaveTicket) }
-        if (inventorySaveTickets.isNotEmpty()) {
-            inventorySaveTickets.first().amount -= 1
-            drops.clear()
-        }
 
-        itemCache.add(player.uniqueId, saveFilter.toMutableList())
+        if (inventorySaveTickets.isEmpty()) return
 
-        drops.addAll(filterDrops)
+        event.keepInventory = true
+
+        inventorySaveTickets.subtractAmount()
+        playerLocation.dropExceptedItem(drops)
+
+        drops.clear()
+
+        playerInventory.removeExceptedItem()
     }
 
-    private fun Inventory.getAmount(item: ItemStack): Int {
-        var amount = 0
-        contents.filter { it != null && it.isSimilar(item) }.forEach { amount += it.amount }
-        return amount
+    private fun List<ItemStack>.subtractAmount() {
+        first().amount -= 1
+    }
+
+    private fun Inventory.removeExceptedItem() {
+        contents.filterNotNull().forEach { if (it.setAmountClone() in exceptedItems) { it.amount = 0 } }
+    }
+
+    private fun Location.dropExceptedItem(drops: List<ItemStack?>) {
+        drops.filterNotNull().filter { it.setAmountClone() in exceptedItems }.forEach {
+            world.dropItemNaturally(this, it)
+        }
+    }
+
+    private fun ItemStack.setAmountClone(): ItemStack {
+        return clone().apply { amount = 1 }
     }
 }
