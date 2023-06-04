@@ -2,7 +2,6 @@ package kr.hqservice.ticket.command
 
 import kr.hqservice.ticket.HQInventorySaveTicket.Companion.prefix
 import kr.hqservice.ticket.extension.sendMessages
-import kr.hqservice.ticket.inventory.ExceptedItemSettingInventory
 import kr.hqservice.ticket.repository.ItemRepository
 import org.bukkit.Material
 import org.bukkit.command.Command
@@ -16,7 +15,7 @@ class AdminCommand(
 ) : CommandExecutor, TabCompleter {
 
     private companion object {
-        val commandTabList = listOf("ticket", "give", "except")
+        val commandTabList = listOf("ticket", "give")
     }
 
     override fun onTabComplete(sender: CommandSender, command: Command, label: String, args: Array<out String>): List<String> {
@@ -45,8 +44,7 @@ class AdminCommand(
             "$prefix 인벤토리 세이브권 명령어 도움말",
             "",
             "$prefix /$label ticket : 인벤토리 세이브권을 설정합니다.",
-            "$prefix /$label give : 인벤토리 세이브권을 지급받습니다.",
-            "$prefix /$label except : 인벤토리 세이브에서 제외될 아이템을 설정합니다."
+            "$prefix /$label give : 인벤토리 세이브권을 지급받습니다."
         )
     }
 
@@ -55,8 +53,6 @@ class AdminCommand(
             "ticket" -> setInventorySaveTicket(player)
 
             "give" -> getInventorySaveTicket(player)
-
-            "except" -> openExceptedItemSettingInventory(player)
 
             else -> printHelp(player, label)
         }
@@ -76,9 +72,5 @@ class AdminCommand(
     private fun getInventorySaveTicket(player: Player) {
         val ticket = itemRepository.getInventorySaveTicket()
         player.inventory.addItem(ticket)
-    }
-
-    private fun openExceptedItemSettingInventory(player: Player) {
-        ExceptedItemSettingInventory(itemRepository).openInventory(player)
     }
 }
