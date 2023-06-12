@@ -15,7 +15,7 @@ class AdminCommand(
 ) : CommandExecutor, TabCompleter {
 
     private companion object {
-        val commandTabList = listOf("ticket", "give")
+        val commandTabList = listOf("ticket", "give", "reload")
     }
 
     override fun onTabComplete(sender: CommandSender, command: Command, label: String, args: Array<out String>): List<String> {
@@ -44,7 +44,8 @@ class AdminCommand(
             "$prefix 인벤토리 세이브권 명령어 도움말",
             "",
             "$prefix /$label ticket : 인벤토리 세이브권을 설정합니다.",
-            "$prefix /$label give : 인벤토리 세이브권을 지급받습니다."
+            "$prefix /$label give : 인벤토리 세이브권을 지급받습니다.",
+            "$prefix /$label reload : config.yml을 리로드합니다."
         )
     }
 
@@ -53,6 +54,8 @@ class AdminCommand(
             "ticket" -> setInventorySaveTicket(player)
 
             "give" -> getInventorySaveTicket(player)
+
+            "reload" -> reload(player)
 
             else -> printHelp(player, label)
         }
@@ -72,5 +75,10 @@ class AdminCommand(
     private fun getInventorySaveTicket(player: Player) {
         val ticket = itemRepository.getInventorySaveTicket()
         player.inventory.addItem(ticket)
+    }
+
+    private fun reload(player: Player) {
+        itemRepository.reload()
+        player.sendMessage("$prefix config.yml을 리로드하였습니다.")
     }
 }

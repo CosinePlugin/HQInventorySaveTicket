@@ -1,12 +1,9 @@
 package kr.hqservice.ticket.listener
 
 import kr.hqservice.ticket.HQInventorySaveTicket
-import org.bukkit.Location
-import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
-import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 
 class InventorySaveListener(
@@ -18,6 +15,9 @@ class InventorySaveListener(
 
     @EventHandler
     fun onDeath(event: PlayerDeathEvent) {
+        val player = event.entity
+
+        if (itemRepository.isExceptedWorld(player.world.name)) return
         if (inventorySaveTicket == null) return
 
         val inventorySaveTickets = event.drops.toList().filterNotNull().filter { it.isSimilar(inventorySaveTicket) }
