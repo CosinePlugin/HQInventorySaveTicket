@@ -1,3 +1,6 @@
 # 인벤토리 세이브가 제외될 월드
 excepted-worlds:
   - "test"
+
+# 경험치도 저장할 지
+save-exp: true

@@ -2,31 +2,21 @@ package kr.hqservice.ticket
 
 import kr.hqservice.ticket.command.AdminCommand
 import kr.hqservice.ticket.listener.InventorySaveListener
-import kr.hqservice.ticket.repository.ItemRepository
+import kr.hqservice.ticket.config.ItemConfig
 import org.bukkit.plugin.java.JavaPlugin
 
 class HQInventorySaveTicket : JavaPlugin() {
 
-    companion object {
-        lateinit var plugin: HQInventorySaveTicket
-            private set
-
-        internal const val prefix = "§c[ HQInventorySaveTicket ]§f"
+    internal companion object {
+        const val prefix = "§c[ HQInventorySaveTicket ]§f"
     }
-
-    override fun onLoad() {
-        plugin = this
-    }
-
-    lateinit var itemRepository: ItemRepository
-        private set
 
     override fun onEnable() {
-        itemRepository = ItemRepository(this)
-        itemRepository.load()
+        val itemConfig = ItemConfig(this)
+        itemConfig.load()
 
-        server.pluginManager.registerEvents(InventorySaveListener(this), this)
-        getCommand("inventorysaveticket")?.setExecutor(AdminCommand(itemRepository))
+        server.pluginManager.registerEvents(InventorySaveListener(this, itemConfig), this)
+        getCommand("inventorysaveticket")?.setExecutor(AdminCommand(itemConfig))
     }
 
     override fun onDisable() {

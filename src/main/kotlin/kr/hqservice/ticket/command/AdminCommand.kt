@@ -2,7 +2,7 @@ package kr.hqservice.ticket.command
 
 import kr.hqservice.ticket.HQInventorySaveTicket.Companion.prefix
 import kr.hqservice.ticket.extension.sendMessages
-import kr.hqservice.ticket.repository.ItemRepository
+import kr.hqservice.ticket.config.ItemConfig
 import org.bukkit.Material
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
@@ -11,19 +11,10 @@ import org.bukkit.command.TabCompleter
 import org.bukkit.entity.Player
 
 class AdminCommand(
-    private val itemRepository: ItemRepository
+    private val itemConfig: ItemConfig
 ) : CommandExecutor, TabCompleter {
 
-    private companion object {
-        val commandTabList = listOf("ticket", "give", "reload")
-    }
-
-    override fun onTabComplete(sender: CommandSender, command: Command, label: String, args: Array<out String>): List<String> {
-        if (args.size <= 1) {
-            return commandTabList
-        }
-        return emptyList()
-    }
+    private val commandTabList = listOf("ticket", "give", "reload")
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         if (sender !is Player) {
@@ -67,18 +58,25 @@ class AdminCommand(
             player.sendMessage("$prefix 손에 아이템을 들어주세요.")
             return
         }
-        itemRepository.setInventorySaveTicket(item)
-        itemRepository.save()
+        itemConfig.setInventorySaveTicket(item)
+        itemConfig.save()
         player.sendMessage("$prefix 인벤토리 세이브권을 설정하였습니다.")
     }
 
     private fun getInventorySaveTicket(player: Player) {
-        val ticket = itemRepository.getInventorySaveTicket()
+        val ticket = itemConfig.getInventorySaveTicket()
         player.inventory.addItem(ticket)
     }
 
     private fun reload(player: Player) {
-        itemRepository.reload()
+        itemConfig.reload()
         player.sendMessage("$prefix config.yml을 리로드하였습니다.")
+    }
+
+    override fun onTabComplete(sender: CommandSender, command: Command, label: String, args: Array<out String>): List<String> {
+        if (args.size <= 1) {
+            return commandTabList
+        }
+        return emptyList()
     }
 }

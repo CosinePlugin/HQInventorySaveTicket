@@ -1,4 +1,4 @@
-package kr.hqservice.ticket.repository
+package kr.hqservice.ticket.config
 
 import kr.hqservice.ticket.HQInventorySaveTicket
 import kr.hqservice.ticket.extension.async
@@ -6,13 +6,11 @@ import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.inventory.ItemStack
 import java.io.File
 
-class ItemRepository(
-    plugin: HQInventorySaveTicket
+class ItemConfig(
+    private val plugin: HQInventorySaveTicket
 ) {
 
-    private companion object {
-        const val path = "config.yml"
-    }
+    private val path = "config.yml"
 
     private var file: File
     private var config: YamlConfiguration
@@ -26,16 +24,21 @@ class ItemRepository(
         config = YamlConfiguration.loadConfiguration(file)
     }
 
-    private var exceptedWorlds = mutableListOf<String>()
     private var inventorySaveTicketItem: ItemStack? = null
+
+    private var exceptedWorlds = mutableListOf<String>()
+
+    var isSaveExp = true
+        private set
 
     fun load() {
         inventorySaveTicketItem = config.getItemStack("inventory-save-ticket")
         exceptedWorlds = config.getStringList("excepted-worlds")
+        isSaveExp = config.getBoolean("save-exp")
     }
 
     fun save() {
-        async {
+        plugin.async {
             config.set("inventory-save-ticket", inventorySaveTicketItem)
             config.save(file)
         }
@@ -47,11 +50,11 @@ class ItemRepository(
         load()
     }
 
-    fun isExceptedWorld(worldName: String) = exceptedWorlds.contains(worldName)
+    fun isExceptedWorld(worldName: String): Boolean = exceptedWorlds.contains(worldName)
 
-    fun getInventorySaveTicket() = inventorySaveTicketItem
+    fun getInventorySaveTicket(): ItemStack? = inventorySaveTicketItem?.clone()
 
-    fun setInventorySaveTicket(item: ItemStack) {
-        inventorySaveTicketItem = item
+    fun setInventorySaveTicket(itemStack: ItemStack) {
+        inventorySaveTicketItem = itemStack
     }
 }

@@ -1,9 +1,9 @@
 plugins {
-    kotlin("jvm") version "1.8.0"
+    kotlin("jvm") version "1.7.21"
 }
 
 group = "kr.hqservice.ticket"
-version = "1.0.2"
+version = "1.0.3"
 
 repositories {
     mavenCentral()
@@ -15,11 +15,12 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
-tasks.test {
-    useJUnitPlatform()
-}
-
-tasks.jar {
-    archiveFileName.set("${rootProject.name}-${project.version}.jar")
-    destinationDirectory.set(File("D:\\서버\\1.19.3 - 개발\\plugins"))
+tasks {
+    test {
+        useJUnitPlatform()
+    }
+    jar {
+        archiveFileName.set("${rootProject.name}-${project.version}.jar")
+        destinationDirectory.set(File("D:\\서버\\1.19.3 - 개발\\plugins"))
+    }
 }

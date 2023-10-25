@@ -1,21 +1,11 @@
 package kr.hqservice.ticket.extension
 
-import kr.hqservice.ticket.HQInventorySaveTicket.Companion.plugin
-import org.bukkit.Bukkit
-import org.bukkit.scheduler.BukkitTask
+import org.bukkit.plugin.Plugin
 
-internal fun sync(block: () -> Unit) {
-    Bukkit.getScheduler().runTask(plugin, Runnable(block))
+internal fun Plugin.async(actionFunction: () -> Unit) {
+    server.scheduler.runTaskAsynchronously(this, actionFunction)
 }
 
-internal fun async(block: () -> Unit) {
-    Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable(block))
-}
-
-internal fun later(delay: Int = 1, async: Boolean = false, block: () -> Unit = {}): BukkitTask {
-    return if (async) {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, Runnable(block), delay.toLong())
-    } else {
-        Bukkit.getScheduler().runTaskLater(plugin, Runnable(block), delay.toLong())
-    }
+internal fun Plugin.runTaskLater(delay: Int = 1, actionFunction: () -> Unit = {}) {
+    server.scheduler.runTaskLater(this, actionFunction, delay.toLong())
 }
