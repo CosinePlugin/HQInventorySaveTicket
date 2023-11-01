@@ -4,3 +4,11 @@ excepted-worlds:
 
 # 경험치도 저장할 지
 save-exp: true
+
+# 해당 로어가 있으면 무조건 세이브
+must-save-lore:
+  - "세이브"
+
+# 해당 로어가 있으면 세이브 제외
+excepted-save-lore:
+  - "제외"
