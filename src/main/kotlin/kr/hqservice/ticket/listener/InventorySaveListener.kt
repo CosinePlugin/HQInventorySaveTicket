@@ -2,6 +2,8 @@ package kr.hqservice.ticket.listener
 
 import kr.hqservice.ticket.config.ItemConfig
 import kr.hqservice.ticket.extension.runTaskLater
+import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -16,6 +18,7 @@ class InventorySaveListener(
     private val itemConfig: ItemConfig
 ) : Listener {
 
+    private val inventoryMap = mutableMapOf<UUID, List<ItemStack>>()
     private val exp = mutableMapOf<UUID, Int>()
 
     private val inventorySaveTicket get() = itemConfig.getInventorySaveTicket()
@@ -23,21 +26,48 @@ class InventorySaveListener(
     @EventHandler(priority = EventPriority.LOWEST)
     fun onDeath(event: PlayerDeathEvent) {
         val player = event.entity
+        val playerUniqueId = player.uniqueId
 
         if (itemConfig.isExceptedWorld(player.world.name)) return
         if (inventorySaveTicket == null) return
 
-        val inventorySaveTickets = event.drops.toList().filterNotNull().filter { it.isSimilar(inventorySaveTicket) }
-        if (inventorySaveTickets.isEmpty()) return
+        val inventorySaveTickets = event.drops.filter { it?.isSimilar(inventorySaveTicket) == true }
+        if (inventorySaveTickets.isEmpty()) {
+            player.setInventoryMap {
+                !itemConfig.isMustSaveItem(it).apply {
+                    if (this) {
+                        event.drops.remove(it)
+                    }
+                }
+            }
+            return
+        }
 
-        event.keepInventory = true
-        event.drops.clear()
+        inventorySaveTickets.subtractAmount()
+        player.setInventoryMap {
+            itemConfig.isExceptedSaveItem(it).apply {
+                if (!this) {
+                    event.drops.remove(it)
+                }
+            }
+        }
+        // event.keepInventory = true
 
         if (itemConfig.isSaveExp) {
             event.droppedExp = 0
-            exp[player.uniqueId] = player.totalExperience
+            exp[playerUniqueId] = player.totalExperience
         }
-        inventorySaveTickets.subtractAmount()
+    }
+
+    private fun Player.setInventoryMap(toAirFunction: (ItemStack) -> Boolean) {
+        val clonedInventory = player.inventory.map {
+            if (it == null || toAirFunction(it)) {
+                ItemStack(Material.AIR)
+            } else {
+                it.clone()
+            }
+        }
+        inventoryMap[uniqueId] = clonedInventory
     }
 
     private fun List<ItemStack>.subtractAmount() {
@@ -47,11 +77,18 @@ class InventorySaveListener(
     @EventHandler(priority = EventPriority.HIGHEST)
     fun onRespawn(event: PlayerRespawnEvent) {
         val player = event.player
-        val exp = exp.remove(player.uniqueId) ?: return
+        val inventory = inventoryMap.remove(player.uniqueId)
+        val exp = exp.remove(player.uniqueId)
         plugin.runTaskLater {
-            player.level = 0
-            player.exp = 0f
-            player.giveExp(exp)
+            inventory?.forEachIndexed { slot, itemStack ->
+                player.inventory.setItem(slot, itemStack)
+            }
+            if (exp != null) {
+                player.totalExperience = 0
+                player.level = 0
+                player.exp = 0f
+                player.giveExp(exp)
+            }
         }
     }
 }

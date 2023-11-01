@@ -2,6 +2,7 @@ package kr.hqservice.ticket.config
 
 import kr.hqservice.ticket.HQInventorySaveTicket
 import kr.hqservice.ticket.extension.async
+import org.bukkit.ChatColor
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.inventory.ItemStack
 import java.io.File
@@ -31,10 +32,16 @@ class ItemConfig(
     var isSaveExp = true
         private set
 
+    private var mustSaveLore = mutableListOf<String>()
+
+    private var exceptedSaveLore = mutableListOf<String>()
+
     fun load() {
         inventorySaveTicketItem = config.getItemStack("inventory-save-ticket")
         exceptedWorlds = config.getStringList("excepted-worlds")
         isSaveExp = config.getBoolean("save-exp")
+        mustSaveLore = config.getStringList("must-save-lore")
+        exceptedSaveLore = config.getStringList("excepted-save-lore")
     }
 
     fun save() {
@@ -56,5 +63,17 @@ class ItemConfig(
 
     fun setInventorySaveTicket(itemStack: ItemStack) {
         inventorySaveTicketItem = itemStack
+    }
+
+    fun isMustSaveItem(itemStack: ItemStack): Boolean {
+        return itemStack.getStripColorLore()?.containsAll(mustSaveLore) == true
+    }
+
+    fun isExceptedSaveItem(itemStack: ItemStack): Boolean {
+        return itemStack.getStripColorLore()?.containsAll(exceptedSaveLore) == true
+    }
+
+    private fun ItemStack.getStripColorLore(): List<String>? {
+        return itemMeta?.lore?.map { ChatColor.stripColor(it) }
     }
 }
