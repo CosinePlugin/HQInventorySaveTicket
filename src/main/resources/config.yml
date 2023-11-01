@@ -1,3 +1,5 @@
+config-version: 1
+
 # 인벤토리 세이브가 제외될 월드
 excepted-worlds:
   - "test"
