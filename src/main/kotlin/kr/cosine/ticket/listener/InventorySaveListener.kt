@@ -1,11 +1,11 @@
 package kr.cosine.ticket.listener
 
 import kr.cosine.ticket.config.ItemConfig
+import kr.hqservice.framework.bukkit.core.listener.HandleOrder
 import kr.hqservice.framework.bukkit.core.listener.Listener
+import kr.hqservice.framework.bukkit.core.listener.Subscribe
 import org.bukkit.Material
 import org.bukkit.entity.Player
-import org.bukkit.event.EventHandler
-import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.inventory.ItemStack
@@ -25,7 +25,7 @@ class InventorySaveListener(
 
     private val inventorySaveTicket get() = itemConfig.getInventorySaveTicket()
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @Subscribe(HandleOrder.LAST)
     fun onDeath(event: PlayerDeathEvent) {
         val player = event.entity
         val playerUniqueId = player.uniqueId
@@ -76,7 +76,7 @@ class InventorySaveListener(
         first().amount -= 1
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @Subscribe(HandleOrder.LAST)
     fun onRespawn(event: PlayerRespawnEvent) {
         val player = event.player
         val inventory = inventoryMap.remove(player.uniqueId)

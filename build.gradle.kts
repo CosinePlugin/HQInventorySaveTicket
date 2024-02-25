@@ -26,6 +26,6 @@ tasks {
     }
     jar {
         archiveFileName.set("${rootProject.name}-${project.version}.jar")
-        destinationDirectory.set(File("D:\\서버\\1.20.1 - 개발\\plugins"))
+        destinationDirectory.set(File("D:\\서버\\1.20.2 - 개발\\plugins"))
     }
 }
