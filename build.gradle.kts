@@ -2,16 +2,21 @@ plugins {
     kotlin("jvm") version "1.7.21"
 }
 
-group = "kr.hqservice.ticket"
-version = "1.0.3"
+group = "kr.cosine.ticket"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
+    maven("https://maven.hqservice.kr/repository/maven-public/")
     mavenLocal()
 }
 
 dependencies {
-    compileOnly("org.spigotmc", "spigot", "1.12.2-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc", "spigot-api", "1.20.2-R0.1-SNAPSHOT")
+
+    compileOnly("kr.hqservice", "hqframework-bukkit-core", "1.0.1-SNAPSHOT")
+    compileOnly("kr.hqservice", "hqframework-bukkit-command", "1.0.1-SNAPSHOT")
+
     testImplementation(kotlin("test"))
 }
 
@@ -21,6 +26,6 @@ tasks {
     }
     jar {
         archiveFileName.set("${rootProject.name}-${project.version}.jar")
-        destinationDirectory.set(File("D:\\서버\\1.19.3 - 개발\\plugins"))
+        destinationDirectory.set(File("D:\\서버\\1.20.1 - 개발\\plugins"))
     }
 }

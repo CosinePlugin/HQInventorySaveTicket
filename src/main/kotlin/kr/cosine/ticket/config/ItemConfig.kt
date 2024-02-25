@@ -1,22 +1,24 @@
-package kr.hqservice.ticket.config
+package kr.cosine.ticket.config
 
-import kr.hqservice.ticket.HQInventorySaveTicket
-import kr.hqservice.ticket.extension.async
+import kr.hqservice.framework.global.core.component.Bean
 import org.bukkit.ChatColor
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.inventory.ItemStack
+import org.bukkit.plugin.Plugin
 import java.io.File
 
+@Bean
 class ItemConfig(
-    private val plugin: HQInventorySaveTicket
+    private val plugin: Plugin
 ) {
 
-    private val path = "config.yml"
+    private val server = plugin.server
 
     private var file: File
     private var config: YamlConfiguration
 
     init {
+        val path = "config.yml"
         val newFile = File(plugin.dataFolder, path)
         if (!newFile.exists() && plugin.getResource(path) != null) {
             plugin.saveResource(path, false)
@@ -45,10 +47,10 @@ class ItemConfig(
     }
 
     fun save() {
-        plugin.async {
-            config.set("inventory-save-ticket", inventorySaveTicketItem)
+        server.scheduler.runTaskAsynchronously(plugin, Runnable {
+            config.set("inventory-save-ticket", inventorySaveTicketItem?.clone())
             config.save(file)
-        }
+        })
     }
 
     fun reload() {
@@ -74,6 +76,6 @@ class ItemConfig(
     }
 
     private fun ItemStack.getStripColorLore(): List<String>? {
-        return itemMeta?.lore?.map { ChatColor.stripColor(it) }
+        return itemMeta?.lore?.map { ChatColor.stripColor(it) ?: it }
     }
 }

@@ -1,14 +1,7 @@
 name: HQInventorySaveTicket
-version: 1.0.3
-api-version: 1.13
-main: kr.hqservice.ticket.HQInventorySaveTicket
-authors: [ Cosine_A ]
-softdepend:
-  - MS-Core
-
-commands:
-  inventorysaveticket:
-    permission: op
-    aliases:
-      - ist
-    description: 인벤토리 세이브권 설정 관련 명령어입니다.
+version: 1.0.0
+api-version: 1.20
+main: kr.cosine.ticket.HQInventorySaveTicket
+author: Cosine_A
+depend:
+  - HQFramework

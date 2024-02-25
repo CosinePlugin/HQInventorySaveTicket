@@ -1,22 +1,24 @@
-package kr.hqservice.ticket.listener
+package kr.cosine.ticket.listener
 
-import kr.hqservice.ticket.config.ItemConfig
-import kr.hqservice.ticket.extension.runTaskLater
+import kr.cosine.ticket.config.ItemConfig
+import kr.hqservice.framework.bukkit.core.listener.Listener
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
-import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
 import java.util.UUID
 
+@Listener
 class InventorySaveListener(
     private val plugin: Plugin,
     private val itemConfig: ItemConfig
-) : Listener {
+) {
+
+    private val server = plugin.server
 
     private val inventoryMap = mutableMapOf<UUID, List<ItemStack>>()
     private val exp = mutableMapOf<UUID, Int>()
@@ -60,7 +62,7 @@ class InventorySaveListener(
     }
 
     private fun Player.setInventoryMap(toAirFunction: (ItemStack) -> Boolean) {
-        val clonedInventory = player.inventory.map {
+        val clonedInventory = inventory.map {
             if (it == null || toAirFunction(it)) {
                 ItemStack(Material.AIR)
             } else {
@@ -79,7 +81,7 @@ class InventorySaveListener(
         val player = event.player
         val inventory = inventoryMap.remove(player.uniqueId)
         val exp = exp.remove(player.uniqueId)
-        plugin.runTaskLater {
+        server.scheduler.runTaskLater(plugin, Runnable {
             inventory?.forEachIndexed { slot, itemStack ->
                 player.inventory.setItem(slot, itemStack)
             }
@@ -89,6 +91,6 @@ class InventorySaveListener(
                 player.exp = 0f
                 player.giveExp(exp)
             }
-        }
+        }, 1)
     }
 }
