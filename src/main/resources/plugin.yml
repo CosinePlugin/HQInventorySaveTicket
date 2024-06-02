@@ -1,9 +1,10 @@
 name: HQInventorySaveTicket
-version: 1.0.3
+version: 1.0.4
 api-version: 1.13
 main: kr.hqservice.ticket.HQInventorySaveTicket
 authors: [ Cosine_A ]
 softdepend:
+  - HQFramework
   - MS-Core
 
 commands:

@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "kr.hqservice.ticket"
-version = "1.0.3"
+version = "1.0.4"
 
 repositories {
     mavenCentral()
@@ -21,6 +21,6 @@ tasks {
     }
     jar {
         archiveFileName.set("${rootProject.name}-${project.version}.jar")
-        destinationDirectory.set(File("D:\\서버\\1.19.3 - 개발\\plugins"))
+        destinationDirectory.set(File("D:\\서버\\1.20.1 - 개발\\plugins"))
     }
 }
